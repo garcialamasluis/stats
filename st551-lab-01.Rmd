@@ -1,0 +1,420 @@
+---
+title: "ST 551: Statistical Methods I"
+date: "Lab 01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Preliminaries
+
+Before starting this lab, I would highly recommend you do the following:
+
+1. Read the **R & Rstudio** page on Canvas. This will help you install some critical software we'll need for this course.
+2. Make sure that this file was opened by **RStudio** and not some other program.
+3. Read through **Lab 00: Introducing R and R Markdown** which you can find on Canvas.
+
+Also, if you've not done so already, copy/paste the following line of code into the RStudio **Console** and then hit _Enter_ to install the `Sleuth3` package.
+
+```
+install.packages("Sleuth3")
+```
+
+For this lab, our goals are to start getting you familiar with R as a programming language. To accomplish this, we'll introduce some basic R functionality, start building your programming vocabulary, show you some basic plotting functions, and at the end show you how we can leverage programming to do a task repeatedly. Don't feel intimidated by the breadth of what we demo in this lab. As we proceed through the course, you'll have loads of time to practice and refine many of these concepts.
+
+You'll notice that there's a series of questions included in the lab. Answering these questions will highlight certain features of the code you're running as well as give you a chance to practice some of the functions we're introducing in this lab. While you won't be submitting your answers for a grade, you should write your answers well enough so that you can reference them some time in the future.
+
+Learning how to write R code, and even how to use R Markdown documents effectively, is a journey. You will likely feel frustrated at some point; however, (1) learning to write R code will help you to become an incredibly powerful statistician and (2) your instructor, TA, and even your fellow classmates are here to help. Don't waste hours of your life sitting in frustration. Reach out on the Weekly Q&A discussion boards on Canvas and let us help!
+
+
+# R Basics: Documentation
+
+One of the reasons R is such a powerful statistical programming language is because it's highly extensible. For instance, when you first installed R you didn't have the many different data sets which are included in the `Sleuth3` package. But, because you installed the package above, you now have access to those many data sets.
+
+But, just because you've installed a package doesn't mean you can use it right away. There's a second step you need to do and that step is to load the library into R. To load a package after you've installed it you'll use the `library()` function.
+
+To load the `Sleuth3` package into R, run the following command either by typing it exactly as it appears in the **Console** or by clicking the green arrow button in the code chunk below:
+
+```{r}
+library(Sleuth3)
+```
+
+Once you run `library(Sleuth3)` you are able to use the "stuff" that was installed from that particular package.
+
+> A quick note about R Markdown documents. If you want to "knit" an R Markdown document that uses functions or data sets from a package you've installed, you need to remember to include the `library()` function which "calls" that package into R in a code "chunk" somewhere in your document _before_ you use the functions, data sets, etc.
+
+Now that we've loaded the `Sleuth3` library, let's see we can use R to access the package's "documentation", which explains either the package itself or a function which is included within the package.
+
+Anytime you want to look at the help file for a specific package, you can run something like:
+
+```{r, eval = FALSE}
+help(package = "Sleuth3")
+```
+
+Here, notice that we're using the `help()` function and asking it to give us help about a `package` named `"Sleuth3"`. In the future, you can replace `"Sleuth3"` with another package to learn about what files that package contains.
+
+### Question 1: Look through the list of information which appeared in the **Help** pane after you ran `help(package = "Sleuth3")`. What are most of these files that are included with the `Slueth3` package? Hint: Click on one to read more information about that particular file. You can access the list again by either re-running `help(package = "Sleuth3")` or by clicking the "Back button" in the **Help** pane in RStudio.  
+  
+<!-- Feel free to write a response to this question below this line -->
+
+
+Besides getting help about an entire package, we can also get help (i.e. read the documentation) for specific things that are included in the package. For instance, you may have noticed that there's something included in the `Sleuth3` package called `Sleuth3Manual()`. To get information about this `Sleuth3Manual()` function we can run:
+
+```{r, eval = FALSE}
+?Sleuth3Manual
+```
+
+Notice two things here: (1) When we want to read the help file for a function, which is what `Sleuth3Manual` is, we don't include the parentheses when we access the help documentation. Also notice (2) the **Help** pane gave us the info about `Sleuth3Manual` immediately after running the command. We didn't have to look through a list of all the functions, find it, and click on it!
+
+> Another quick note about R Markdown documents. R Markdown documents are really intended to make it "easier" (a relative term...) to include written language AND R code/outputs in a single document. We typically DO NOT want things like the help documentation included in a knitted R Markdown document. Thus, you'll notice that I included `help(package = "Sleuth3")` and `?Sleuth3Manual` in a code chunk BUT I also told R Markdown not to actually evaluate the code chunk during the knitting process by specifying `eval = FALSE` as a "chunk option.
+
+### Question 2: Now that you've read the help documentation about the `Sleuth3Manual()` function, what do you think will happen when you actually run the function in the **Console**? Write down what you think will happen below and then run the command (don't forget to include the parentheses at the end) in the **Console**. Were your expectations met?
+
+<!-- Write what you think will happen when you run the `Sleuth3Manual()` function in the console below this line. Then run the function and say whether your expections were met or not -->
+
+
+# R Basics: Exploring Data
+
+For the rest of this lab, we will focus on "exploring" a particular data set contained in the `Sleuth3` package. Specifically, the `case0102` data set.
+
+### Question 3: Look at the help documentation about `case0102` and describe what the data is about.
+
+<!-- Describe the `case0102` data below this line: -->
+
+
+One question we might want to know is, "How big is this data set?" To answer this question we can use the `dim()` function
+
+```{r}
+dim(case0102)
+```
+
+Another, though often less desirable, way to see how big a data set is would be to have the data printed into the Console. To do so, go to the **Console** in Rstudio and run `case0102`. Notice here, I'm having you do this in the **Console** because you certainly wouldn't want to include an entire data set in your R Markdown document.
+
+Suppose you wanted to get a glimpse of your data but didn't necessarily want to look at the WHOLE thing. The following are some ways to look at just specific rows of your data (Run each function, one at a time, and notice how the outputs are similar or different)
+
+```{r}
+head(case0102)
+case0102[1:6, ]
+case0102[1:6, 1]
+case0102[1:6, 1:2]
+case0102[2:5, ]
+```
+
+### Question 4: What does the `head()` function do?
+
+<!-- Write your answer below this line -->
+
+
+### Question 5: How do you think R interprets `1:6` or `2:5`?
+
+<!-- Write your answer below this line -->
+
+
+Something to notice is that our `case0102` data has 93 rows and 2 columns (Remember this when you used the `dim()` function?) One way that we can extract a smaller portion of this 93x2 data is to use R's bracket notation. For example, when we ran `case0102[1:6, ]`, we told R to extract rows 1,2,3,4,5,6 and all of the columns from our `case0102` data. When we ran `case0102[1:6, 1]`, we told R to extract rows 1 through 6 and also column 1 from our `case0102` data.
+
+### Question 6: What code would you run to extract rows 5 through 8 and column 2 from our `case0102` data?
+
+```{r}
+# Write your answer below this line
+
+```
+
+
+Something else we might be interested in finding out is what the "structure" of our data set is. To find out, we can run:
+
+```{r}
+str(case0102)
+```
+
+Notice that the `str()` function gives us quite a bit of information! It tells us our data is a `data.frame` which contains 93 observations and 2 variables. The names, of those variables are `Salary` and `Sex` and we also know that R considers `Salary` to be an "integer" variable class while `Sex` is a "Factor" with two levels: `"Female"` and `"Male"`. When R says something is a "Factor", what that means for us is that the variable is akin to a "categorical" variable.
+
+Suppose though that we just wanted to know the names of the variables in our data. Then we could run:
+
+```{r}
+names(case0102)
+```
+
+Once we know the names of the variables in our data, we can use that information to extract just a single variable's worth of information. Meaning, rather than running `case0102[ , 1]` to get all of the values of our `Salary` variable (Which happens to be in the 1st column of our data, hence the `1`), we could instead run:
+
+```{r, eval = FALSE}
+case0102$Salary
+```
+
+Two things to notice here. First, notice I again included the chunk option `eval = FALSE` because looking at all of the individual observed salary values isn't something I would normally include in an R Markdown document when I "knit" the document. Second, notice that I start with the name of my data, `case0102`, and extract on variable, `Salary`, from my data using the `$` symbol.
+
+### Question 6: Write a line of code in the code chunk below to extract just the values of the `Sex` variable using R's "dollar sign" syntax
+
+```{r, eval = FALSE}
+# Write the line of code below this line:
+
+```
+
+
+Once you're familiar with how to extract individual variables from a data set, we can begin to use R for its intended purpose which is to answer questions about the data using code. For instance, what if we wanted to know how many of our observation were coded as `"Male"`? There are a few ways we can answer this question.  First, run
+
+```{r, eval = FALSE}
+case0102$Sex == "Male"
+```
+
+
+This gives a vector of `TRUE`’s and `FALSE`'s.  We want to know how many `TRUE`’s there are.  Conveniently, R treats a `TRUE` like a 1 and a `FALSE` like a 0, so we can just add up the whole vector to find out how many `TRUE`’s there are:
+
+```{r}
+sum(case0102$Sex == "Male")
+```
+
+The second way we could answer this question is using the `table()` function in R:
+
+```{r}
+table(case0102$Sex)
+```
+
+
+Or we could use the ‘summary()’ function (Try it on `Salary` variable too):
+
+```{r}
+summary(case0102$Sex)
+summary(case0102$Salary)
+```
+
+Something you might notice at this point is that there are often numerous ways to answer a question using R. Knowing when to use one method vs. another is something you'll gain from experience. 
+
+### Question 7: You may have noticed that the `summary()` function worked differently for the `Sex` and `Salary` variables. Can you think of a reason why the output is different?
+
+
+When you ran `summary(case0102$Salary)`, you might have noticed that R output a variety of summary statistics for the `Salary` variable. Suppose you didn't want all of the summary information but instead just wanted the average (or mean) value. One way to compute this value would be to run
+
+```{r}
+mean(case0102$Salary)
+```
+
+Notice what you've done in this one line of code. You first took all of your data (`case0102`) and then extracted just the `Salary` values (`case0102$Salary`). You then placed these values into the `mean()` function and R returned to you the average salary for the observations in the `case0102` data set! And with that, you're officially a statistician. Congrats!
+
+
+What about if we wanted the average salary for just the observations coded as `"Male"`? Or just the observations coded as "`Female"`. One way to do this would be to use those same `TRUE` and `FALSE` values you saw when you ran `case0102$Sex == "Male"` to _subset_ your data. Notice what happens when we run the following line of code:
+
+```{r}
+case0102$Salary[case0102$Sex == "Male"]
+```
+
+The line of code works as follows. First, `case0102$Sex == "Male"` returns which observations were coded as `"Male"` by returning `TRUE` if the person was and `FALSE` if the person was not. Once we had these _logicial_ (`TRUE`/`FALSE`) values, we then used them to _subset_ our `Salary` values by including the logical values within the square brakets. Thus, now that we can obtain only the `Salary` values for the subset of our data which were coded as `"Male"`, we can now compute the average value by running:
+
+```{r}
+mean(case0102$Salary[case0102$Sex == "Male"])
+```
+
+> Notice something here. When you were extracting values from a data set, you used: `data[<rows>, <columns>]`. This is because data has two dimensions (1) observations and (2) variables. When you extracted values from just the `Salary` data however, you didn't include a comma! This is because, a variable is a _vector_ of information, which only has one dimension (1), i.e. the observations for that one particular variable.
+
+### Question 8: Write a line of code to compute the average salary of people in our data who were coded as `"Female"`
+
+```{r}
+# Write your line of code below this line
+
+```
+
+
+# Basics of R: Plots and other functions
+
+One of the best ways you can explore, and learn about, a data set is to create statistical graphics of the variables. By using graphics, you can visualize things like the _distribution_ of the data set. For numerical variables, a very common plot is the _histogram_.
+
+There's different "graphics engines" we can use to make a plot in R. A graphics engine is just a set of functions to produce plots. For this lab, we'll focus on what's called `base` graphics since that's what comes pre-packaged with R when you install it. Later on, we'll likely cover more of my favorite graphics engine which is `ggplot2`.
+
+To produce a histogram of all of the salary data (males and females combined), we can run
+
+```{r}
+hist(case0102$Salary)
+```
+
+This R code takes the values of the `Salary` variable and then the `hist()` function creates the plot. When you run the code, you should notice that a histogram plot appears in RStudio's **Plot** pane.
+
+We can specify additional options, often called _arguments_ in the `hist()` function to change it's appearance. For instance, see what changes from your current histogram when you run the following command:
+
+```{r}
+hist(case0102$Salary, breaks = seq(3750, 8250, 250))
+```
+
+### Question 9: How did specifying the argument `breaks = seq(3750, 8250, 250)` in the `hist()` function change the plot?
+
+<!-- Write your answer below this line -->
+
+
+The `seq()` function is very useful for producing regularly spaced _sequences_ of numbers. There are a couple different ways you can use it. The default interpretation of `seq(a, b, c)` is to produce a sequence of numbers from `a`, to `b`, and changing by jumps of size `c`.
+
+To get a better sense of what we mean here, try running the following lines of code
+
+```{r}
+seq(1, 4, 0.5) 
+seq(-4,-6, -1)
+```
+
+Another way to use the `seq()` function is to specify an argument called `length`. For example, run the following line of code and notice how the output changes as you change the `length` argument
+
+The other way you can use it is ‘seq(a, b, length=n)’ which produces an evenly spaced sequence of n numbers, still starting at a and ending at b.
+
+```{r}
+seq(1, 4, length=13) 
+seq(1, 4, length=5)
+```
+
+
+Besides changing the `breaks` argument in the `hist()` function, we can also, say, add a title, use some color, and/or change the x- and y-axis labels .
+
+```{r}
+hist(case0102$Salary, breaks = seq(3750, 8250, 250), main = "Histogram of Salaries", xlab = "Starting salaries in US Dollars", ylab = "Frequency", col = "dodgerblue")
+```
+
+
+### Question 10: What are the names of the arguements which changed the title, x-axis label, and y-axis label, respectively?
+
+<!-- Write your answer below this line: -->
+
+
+### Question 11: Create a histogram plot for just the salaries of people in the data set who were coded as `"Female"`. Be sure to add a descriptive title and axis lables.
+
+```{r}
+# Write your code below this line
+
+```
+
+
+Another common plot type for displaying numerical variables is the _boxplot_. There's a few ways to use the `boxplot()` function in R, but for now just try running the following:
+
+```{r}
+boxplot(Salary ~ Sex, data = case0102)
+```
+
+You might notice that the syntax here looks very different from the syntax we used when we created a histogram. To summarize, when you ran the `boxplot()` function you told R: "Make me a boxplot where the numerical varible `Salary` depends on (`~`) the categorical variable `Sex`. You'll find these variables in the `data = cas0102`."
+
+
+# Exploring sampling distributions
+
+The final topic we'll cover in this lab is a brief intro to "sampling distributions". In statistics, we often rely on samples in order to learn something about a larger population of interest. The reason we can do this is because we often know about the _sampling distribution_ of a statistic which makes us believe that the sample is a reliable estimate for the population.
+
+We'll start by generating a random sample of observations from an exponential distribution:
+
+```{r}
+samp_a <- rexp(30)
+```
+
+Notice here that we're generating 30 random (hence the `r` in `rexp()`) samples from an exponential distributions (hence the `exp` in `rexp()`). Notice too that we're creating this sample and giving it a name, `samp_a`. The arrow (`<-`) is called the assignment operator. It takes whatever is to the right of the arrow and _assigns_ it the name on the left. Now, if we want to view the values of our 30 samples, we can simply run:
+
+```{r}
+samp_a
+```
+
+For this sample, we can generate all sorts of statistical summary values. 
+
+```{r}
+mean(samp_a)
+var(samp_a)
+sd(samp_a)
+range(samp_a)
+```
+	
+We'll be covering these statistics more as we move through the course, but for now just know that the `mean()` function is measure the "central value" of our sample while the other functions are describing the "spread".
+	
+To understand how random samples "behave", we might consider repeating the random sample and comparing the statistical values with each other.
+
+### Question 12: Generate a new random sample of 30 observations from an exponential distribution. This time however, assign the new sample the name `samp_b`
+
+```{r}
+# Write the code below this line
+
+```
+
+
+### Question 13: How similar or dissimilar are the mean, variance, standard deviation, and range for this new sample compared to the previous sample (i.e. `samp_a`)?
+
+<!-- Write your answer below this line -->
+
+We could repeat this process of drawing samples, one-by-one, many times and create a collection of the resulting sample statistics ... but that would be slow and tedious.  So instead we can have the computer do it for us quickly, using a `for` loop! 
+
+A `for` loop has the following anatomy (in pseudo-code for now):
+```
+for (some set of index variable values) {
+  do something for the current value of the index variable
+}
+```
+
+In R, this might look like the following "simple" (I write "simple" because really, nothing is simple when you are just starting) examples, where `i` is the _index_ variable. Try running each code chunk and see what gets output to the **Console** (Pay close attention as to what changes in the code and how those changes get reflected in the outputs):
+
+```{r, eval = FALSE}
+# Example 1:
+for(i in 1:10){
+  print(i)
+}
+```
+
+```{r, eval = FALSE}
+# Example 2:
+for(i in c(13, 17, 32)){
+  print(i)
+}
+```
+
+```{r, eval = FALSE}
+# Example 3:
+for(i in c(1/10, 1/100, 1/1000)){
+  print(i^2)
+}
+```
+
+```{r, eval = FALSE}
+# Example 4:
+rslt <- 0
+for(i in 1:15){
+  rslt <- rslt + i
+}
+rslt
+```
+
+```{r, eval = FALSE}
+# Example 5:
+rsltVec <- rep(0, 12)
+for(i in 1:12){
+  rsltVec[i] <- i^2
+}
+rsltVec
+```
+
+
+To use a `for` loop to help understand the sampling distribution, we can automate the process of drawing many samples from a specific distribution and computing the sample statistic(s) for each sample.  
+
+Let’s suppose	that we are interested in how the sample median might be distributed for a sample of size 30 from an exponential distribution.   
+
+We pick some large number (say 10,000) of samples to draw, and compute the median for each one of these 10,000 random samples. Each of the 10,000 random samples will come from an exponential distribution and each sample will also contain 30 values with which we'll use to compute the median.  
+
+Before we run the `for` loop where we draw the samples and compute the statistic, we need to create space to store the resulting statistics.  To do this, we make a vector of zeros with 	length equal to the number of samples we will draw.
+
+```{r}
+num_samps <- 10000          # This is the number of repeated samples
+samp_meds <- rep(0, num_samps)  # This is where  we will put the sample medians
+head(samp_meds)             # This will show us the first 6 of 10,000 values
+```
+
+Once we have a place to store our 10,000 sample medians, we can use a `for` loop to compute them. Each time we compute a new sample median, we store it by replacing the i-th zero with the new sample median (Note: This process might take a few seconds to finish so be patient!).
+
+```{r}
+for(i in 1:num_samps){
+  new_samp <- rexp(30)
+  samp_meds[i] <- median(new_samp) 	
+}
+```
+
+Once our 10,000 simulations finish, we can then look at the distribution of the sample median by plotting a histogram:
+
+```{r}
+hist(samp_meds, main= "Histogram of Sample Median (n = 30)", 
+     xlab="Sample Median")
+```
+
+### Question 14: Following the process we demonstrated from up above, try this for other sample sizes (i.e. change the value 30 to a different sample size), for other sample statistics (such as `mean()`, `sd()`, `var()`, etc. instead of `median()`), and other population distributions (try `rnorm()`, `rgamma()`, etc. instead of `rexp()`. You might consider reading the help files for each of these functions to learn what parameters you need to supply. For instance, the function `rnorm(n)` generates a random sample of size `n` from the standard normal, N(0, 1), distribution.  If you want to generate a sample with a different mean and/or variance, you can do this by using `rnorm(n, mean, sd)`, which generates a sample of `n` values from a Normal distribution with some other `mean`  and/or standard deviation, `sd`, values,
+
+
+# Conclusion
+
+Congrats! You've made it to the end of the first lab. We'll review some of these topics throughout the course but I would highly recommend slowly working through the lab again so that you can ask questions during the next lab meeting.
+
+Don't forget, if you feel lost, or stuck, or frustrated, reach out to the instructor or TA on the Weekly Q&A message boards so that we can help you understand what's happening and answer your questions!
