@@ -1,0 +1,269 @@
+---
+title: "ST 551 Homework 1"
+author: "Student's Name Goes Here"
+date: "Fall 2022"
+output:
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+# Default options for knitted documents can be set here
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Instructions
+
+This assignment is due by 11:59 PM, October 5th on Canvas via Gradescope. **You should submit your assignment as a typed PDF which you can compile using the provide .Rmd (R Markdown) template.**  Include your code in your solutions and indicate where the solutions for individual problems are located when uploading into Gradescope. You should also use complete, grammatically correct sentences for your solutions.
+
+
+\newpage
+## Question 1 (18 points)
+Suppose an observational study showed that people who carry lighters have a higher rate of lung cancer. There are four possibilities:
+
+1. The association is spurious: this was just a particularly unusual data set.
+2. The observed association is causative: carrying lighters causes lung cancer.
+3. The causality in the observed association is reversed: lung cancer causes carrying lighters.
+4. There is a confounder: something else about people who carry lighters is the true cause of lung cancer. Perhaps people who carry lighters are more likely to be smokers and so smoking is a confounding variable: it is associated with both the predictor (carrying lighters) and the outcome (lung cancer).
+
+
+In each of the following settings, suggest a plausible alternative to the causal relationship suggested by the study: either propose a possible confounding factor or describe why the causality might be reversed.
+
+
+(a) (3 points) Observational studies show that smokers have a higher rate of liver cancer. Suggested causal relationship: Smoking causes liver cancer.
+
+<!-- Write your answer below this line -->
+
+
+
+(b) (3 points) A study found that teenagers who smoke are more likely to be depressed as young adults. Suggested causal relationship: Smoking causes depression.
+
+<!-- Write your answer below this line -->
+
+
+
+(c) (3 points) A study found that people who consume lots of artificial sweeteners in diet soda are more likely to be overweight than people who do not drink diet soda. Suggested causal relationship: Artificial sweeteners cause obesity.
+
+<!-- Write your answer below this line -->
+
+
+
+(d) (3 points) Observational studies show that women on birth control pills have a higher incidences of cervical cancer.  Suggested causal relationship: The pill causes cervical cancer.
+
+<!-- Write your answer below this line -->
+
+
+
+(e) (3 points) A study showed that infants living in homes that have two or more dogs or cats are less likely than other babies to develop allergies. Suggested causal relationship: Living with pets as an infant reduces allergy incidence.
+
+<!-- Write your answer below this line -->
+
+
+
+(f) (3 points) A study of 100,000 people (published in the Feb. 2003 issue of the journal _Sleep_) reported that people who reported sleeping eight or more hours per night had a higher mortality rate than those who slept seven or fewer hours. Suggested causal relationship: Sleeping more causes death.
+
+<!-- Write your answer below this line -->
+
+
+
+\newpage
+## Question 2 (12 points)
+Identify the population, variable, and parameter of interest in the following scientific questions:
+
+
+(a) (3 points) Estimate the average number of class credits taken by freshman at OSU this quarter.
+
+- Population of interest: <!-- Delete this and write your answer here -->
+- Variable of interest: <!-- Delete this and write your answer here -->
+- Parameter of interest: <!-- Delete this and write your answer here -->
+
+
+
+(b) (3 points) Test whether the median body temperature of cats is equal to the median body temperature of dogs.
+
+- Population of interest: <!-- Delete this and write your answer here -->
+- Variable of interest: <!-- Delete this and write your answer here -->
+- Parameter of interest: <!-- Delete this and write your answer here -->
+
+
+
+(c) (3 points) Test whether the variance of IQ scores for kindergartners in the US is 100.
+
+- Population of interest: <!-- Delete this and write your answer here -->
+- Variable of interest: <!-- Delete this and write your answer here -->
+- Parameter of interest: <!-- Delete this and write your answer here -->
+
+
+
+(d) (3 points) Estimate the 20th percentile weight of rats on a particular reduced calorie diet.
+
+- Population of interest: <!-- Delete this and write your answer here -->
+- Variable of interest: <!-- Delete this and write your answer here -->
+- Parameter of interest: <!-- Delete this and write your answer here -->
+
+
+
+\newpage
+## Question 3 (4 points)
+Give a one-sentence response for each of the following:
+
+(a) (2 points) What is the difference between a population parameter and a statistic?
+
+<!-- Write your answer below this line -->
+
+
+
+(b) (2 points) Describe what we mean by the _sampling distribution_ for a statistic?
+
+<!-- Write your answer below this line -->
+
+
+
+\newpage
+## Question 4 (24 points)
+Perform simulations in R to assess the quantities in part (i) of each population distribution below. Be sure to include the code used and try to output as few extraneous R outputs as possible (i.e. focus on outputting the answer but not the intermediate steps in your document).
+
+
+### a. (8 points) Population distribution: Exponential(rate = 1); Sample size: $n = 20$.
+
+> **The R function `rexp(n, rate)` generates a sample of size `n` from the exponential distribution with rate parameter `rate`.**
+
+
+
+(i) (2 points) Perform a simulation to assess $P(\bar{X} > 1.3)$ where $\bar{X}$ is the sample mean.
+
+```{r}
+# Write your code to answer this question below this line.
+
+```
+
+
+
+(ii) (2 points) Use the fact that the sum of $n$ Exponenential($\theta$) random variables has a Gamma($n$, $\theta$) distribution to calculate the _exact_ probability from part (i).
+
+<!-- Derive how to compute the solution below using sentences and statistical/mathematical notation below this line (Writing the notation in plain text is fine but make sure it's clearly written). -->
+
+
+
+```{r}
+# Use the pgamma(q, shape, rate) function to compute the exact probability.
+# Hint: Here, shape = n and rate = theta
+# Hint: pgamma(), by default, computes the probability of everything to the
+#       left of the value q.
+
+```
+
+
+
+(iii) (2 points) Use the Central Limit Theorem to approximate the probability from part (i).
+
+<!-- Derive how you would use the Central Limit Theorem to approximate the probability using sentences and statistical/mathematical notation below this line (Writing the notation in plain text is fine but make sure it's clearly written). -->
+
+
+
+```{r}
+# Use the pnorm(q, mean, sd) function to compute the approximate probability.
+
+```
+
+
+(iv) (2 points) Make a histogram of the simulated sample means you computed in part (i). Does is seem like the Central Limit Theorem would give a reasonable approximation?
+
+```{r}
+# Create a histogram of the means below this line
+
+```
+
+<!-- Describe if the CLT gives a reasonable approximation below this line using sentences. -->
+
+
+
+\newpage
+### b. (6 points) Population distribution: Uniform(min = 0, max = 1); Sample size: $n = 5$.
+
+> The R function `runif(n, min, max)` generates a sample of size `n` from the uniform distribution ranging from value `min` to value `max`.
+
+(i) (2 points) Perform a simulation to assess $P(0.45 < \bar{X} < 0.55)$ where $\bar{X}$ is the sample mean.
+
+```{r}
+# Write your code to answer this question below this line.
+
+```
+
+
+(ii) (2 points) Use the Central Limit Theorem to approximate the probability from part (i).
+
+<!-- Derive how you would use the Central Limit Theorem to approximate the probability using sentences and statistical/mathematical notation below this line (Writing the notation in plain text is fine but make sure it's clearly written). -->
+
+
+
+```{r}
+# Use the pnorm(q, mean, sd) function to compute the approximate probability.
+
+```
+
+(iii) (2 points) Make a histogram of the simulated sample means. Does is seem like the Central Limit Theorem would give a reasonable approximation?
+
+```{r}
+# Create a histogram of the means below this line
+
+```
+
+<!-- Describe if the CLT gives a reasonable approximation below this line using sentences. -->
+
+
+
+\newpage
+### c. (4 points) Population distribution: Chi-squared(df = 4); Sample size: $n = 10$.
+
+> The R function `rchisq(n, df)` generates a sample of size `n` from the chi-square distribution with degrees of freedom parameter `df`.
+
+(i) (2 points) Perform a simulation to assess $P(m > 4)$ where $m$ is the sample median.
+
+```{r}
+# Write your code to answer this question below this line.
+
+```
+
+
+(ii) (2 points) Make a histogram of the simulated sample medians. Describe the _center_, _shape_ and _spread_ of the sampling distribution.
+
+```{r}
+# Create a histogram of the medians below this line
+
+```
+
+<!-- Describe the _center_, _shape_ and _spread_ of the sampling distribution below this line using sentences. -->
+
+
+
+\newpage
+### d. (4 points) Population distribution: Beta(shape1 = 1/4, shape2 = 1/4); Sample size: $n = 10$.
+
+> The R function `rbeta(n, shape1, shape2)` generates a sample of size `n` from the beta distribution with shape parameter values `shape1` and `shape2`.
+
+(i) (2 points) Perform a simulation to assess $P(s^2 > 0.2)$ where $s^2$ is the sample variance.
+
+```{r}
+# Write your code to answer this question below this line
+
+```
+
+
+(ii) (2 points) Make a histogram of the simulated sample variances. Describe the _center_, _shape_ and _spread_ of the sampling distribution.
+
+
+```{r}
+# Create a histogram of the variances below this line
+
+```
+
+<!-- Describe the _center_, _shape_ and _spread_ of the sampling distribution below this line using sentences. -->
+
+
+
+\newpage
+### e. How did you decide how many simulated data sets to generate in order to get a _good_ estimate of the quantities above?
+
+<!-- Write your answer below this line -->
+
