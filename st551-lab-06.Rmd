@@ -1,0 +1,191 @@
+---
+title: 'ST 551: Statistical Methods I'
+date: "Lab 06 - Binomial Tests"
+output:
+  html_notebook: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Binomial Tests in R
+
+As we've seen (or will see) in the lecture, there's broadly two different methods for conducting a binomial tests for proportions. First, we have the "exact" method which computes p-values and confidence intervals by using a binomial distribution. The other method is the "normal approximation" which provides approximate p-values and confidence intervals by using a normal distribution.
+
+Binomial tests are really well suited for questions where our data has two possible outcomes. We can often describe these two possible outcomes using two categories such as "Yes"/"No" or "Success"/"Failure". But we can also think of these outcomes quantitatively where when we observe one outcome, we label it with a 1. And if we observe the opposite outcome, we label it with a 0.
+
+The dichotomy of our outcomes is really what makes a binomial test different from the t-tests we've seen previously. For t-tests, our data generating process produced _real_ numbers (though potentially on a restricted domain). Now though, our generating process is producing 0s and 1s and thus, the binomial test comes into play.
+
+In this lab, we'll take a look at each of these "flavors" of the binomial test and see how to use R to conduct them.
+
+
+## Exact Binomial Test
+
+To conduct an exact binomial test in R, we can use the `binom.test()` function. To use this function, we want need (1) The number of "successes", `x` (or "Yes" values, or 1s, etc.), (2) the total number of trials, `n`, and the hypothesized proportion/probability of "success", `p`.
+
+For instance, if we had a sample of `n = 9` people and were interested in how many of them consider themselves to be "cat" people. Then we might consider saying out outcomes $Y_i = 1$ when a person says they're a cat person and let $Y_i = 0$ when the person says they're a non-cat (i.e. dog) person. If we believe that the population proportion of people who prefer cats is `p = 0.5`, and further, if we find that only `x = 3` people in our sample consider themselves cat people, then we can perform a two-sided exact binomial test using the following:
+
+```{r}
+binom.test(x = 3, n = 9, p = 0.5)
+```
+
+This output, and indeed this test, looks and feels fairly similarly to the `t.test()` function we saw in previous labs. We see that R outputs a point estimate (0.333), a 95% confidence interval, (0.075, 0.701), and a p-value, 0.5078. 
+
+Thus, based on the exact binomial test, we would fail to reject the null hypothesis that the population proportion is equal to 0.5 in favor of the two-sided alternative. For $\alpha = 0.05$ and with a sample of $n = 9$, our p-value is too large to indicate that we have evidence that the population proportion of people who prefer cats is not equal to 0.5.
+
+Similar to the `t.test()` function, we can also use R's "$"-sign syntax to extract different components of our test output. For instance, we can extract the p-value of our test by doing the following:
+
+```{r}
+test <- binom.test(x = 3, n = 9, p = 0.5)
+test$p.val
+```
+
+
+### Question 1: Use the `binom.test()` function to conduct a one-sided lesser exact binomial test at the $\alpha = 0.05$ significance level and where $n = 88$, the number of "successes" is 20, and our null hypothesis is $H_0: p = 1/3$.
+
+```{r}
+# Write the code for your binomial test here
+
+```
+
+
+We mentioned previously that the exact binomial test uses a binomial distribution to compute p-values and such. We can confirm this by taking a look at the `dbinom()` function. For discrete random variables, the `d()` functions compute the values of the probability mass functions (pmf), i.e. $p(x) = P(X = x)$. 
+
+For example, if we wanted to know, assuming the hypothesized proportion of cat people really is 0.5, what the probability of having exactly 3 cat people out of our sample of 9, we could compute:
+
+```{r}
+dbinom(x = 3, size = 9, prob = 0.5)
+```
+
+If we wanted to "manually" compute the p-value from our previous two-sided test using the binomial pmf, i.e. `dbinom()`, we would first need to find all of the possible outcomes which had a probability that was less than or equal to our observed probability (Which is roughly 16.4%). In R, what we might do is
+
+```{r}
+# Write out all of the possible values our sample _could_ have contained
+# for the number of "cat" people in the sample. Here, since our sample size
+# is 9, we could have had 0 cat people, or 1 cat person, all the way up to
+# 9 cat people. These then represent the possible outcomes
+outcomes <- 0:9
+
+# Our next step is to find out which outcomes had a probability of occuring
+# that was less than or equal to our observed probability. Here, remember 
+# that `prob = 0.5` because that's what we're assuming in our null 
+# hypothesis
+
+# This is our observed probability
+observed_p <- dbinom(x = 3, size = 9, prob = 0.5)
+
+# This is a vector of probabilities for each possible outcome occurring:
+possible_ps <- dbinom(x = outcomes, size = 9, prob = 0.5)
+
+# This line of code returns just the outcomes which we are interested in,
+# i.e. they are the outcomes which had a probability of occurring which
+# is greater than or equal to our observed probability
+outcomes_of_interest <- outcomes[possible_ps <= observed_p]
+
+# Finally, we can manually compute the two-sided p-value by summing the
+# probabilities of our outcomes of interest
+sum(dbinom(x = outcomes_of_interest, size = 9, prob = 0.5))
+```
+
+Had we simply wanted to manually compute the p-value of a one-sided lesser alternative, rather than using `dbinom()`, we could have used the `pbinom()` function. The `pbinom()` function computes the cumulative probability up to, and include, a specific value. Hence, for our example thus far, the one-sided lesser alternative p-value could be computed as:
+
+```{r}
+pbinom(q = 3, size = 9, prob = 0.5)
+```
+
+### Question 2: Confirm that the one-sided lesser alternative p-value matches the output from an exact binomial test using the `binom.test()` function.
+
+```{r}
+# Write the test and extract the p-value here:
+
+```
+
+
+## Normal Approximation Binomial Test
+
+As previously mentioned, we can also conduct a binomial test using a "normal approximation". What this implies is that, for sufficiently large samples, we can conduct our binomial test similarly to how we conducted a z-test. For example, using our previous example where with a sample of size 9 and a hypothesized value of $p = 0.5$, if 3 people indicated that they were "cat" people, then we could compute a z-statistic as follows:
+
+```{r}
+# n and x are specified in the example
+n <- 9
+x <- 3
+
+# p0 comes from the null hypothesis
+p0 <- 0.5
+
+# phat is our point estimate based on our sample
+phat <- x / n
+
+# Using the info from above, our computed z-statistic is
+zstat <- (phat - p0) / (sqrt(p0 * (1 - p0) / n))
+zstat
+```
+
+Thus, using the normal approximation, we can compute a two-sided p-value using the knowledge we already know about the z-test:
+
+```{r}
+pval <- 2 * (1 - pnorm(abs(zstat)))
+pval
+```
+
+In this case, we would again fail to reject the null hypothesis. But we should be careful here because with such a small sample size, our approximation using the normal distribution might not really be all that reliable.
+
+To conduct the normal approximation test in R, we can use the `prop.test()` function. For example, here's a binomial test using a normal approximation in R:
+
+```{r}
+prop.test(x = 3, n = 9, p = 0.5)
+```
+
+There's two things you should notice here. First, a warning appears that tells us, "Chi-squared approximation may be incorrect". This is "R-speak" for the sample size is too small for the approximation to be reliable ... but why does it say "Chi-squared approximation"? This is because in the `prop.test()` function, the computed test statistic is `X-squared` which is just the z-statistic we computed squared. That is, `X-squared =  zstat^2`. Still, why does the `X-squared` statistic equal 0.444 when our z-statistic squared is equal to
+
+```{r}
+zstat^2
+```
+
+This is actually related to the next point ...
+
+
+The other thing we should notice is that the p-value from `prop.test()` is different than the p-value we computed. So what's going on here?
+
+If we look at the help documentation for `prop.test()`, we notice that there's an argument called `correct` and its default value is `TRUE`. Hence, if we go back and look at the output of our `prop.test()` function, we might notice that the top line of the output reads: "`1-sample proportions test with continuity correction`". This is actually sort of helpful because, by default, R is applying a continuity correction to our test so that the approximation "works better". Yay!
+
+
+### Question 3: Re-run the `prop.test()` from before but this time, turn off the continuity correction. Once you've done this, confirm (1) that the p-value is the same as what we previously computed and (2) that `zstat^2` is now equal to the `X-squared` test statistic.
+
+```{r}
+# Write your code to answer this question here
+
+```
+
+
+## Final Thoughts
+
+At the end of the day, which function should we use and when? If our sample sizes are "small", then the exact binomial test is preferred as the normal approximation isn't very good. As our sample sizes increase, especially if our sample sizes are very large, then we can avoid some computational bottlenecks by performing a normal approximation. In just about all cases, when using the normal approximation, we should use continuity correction.
+
+And for those of you feeling "brave", below is a few code chunks you can run which demonstrate the "computational bottleneck" of the exact binomial test function.
+
+> Note: Save your work before running these functions. With some non-zero probability, this might crash your computer.
+
+```{r}
+# Set up the example with some "large" data (i.e. 100,000,000 observations)
+n <- 1e8 # increase 8 -> 9 or 10 if you're feeling very brave
+x <- n / 2
+p = 0.25
+```
+
+```{r, eval = FALSE}
+# Notice how long it takes for the binom.test function to run...
+binom.test(x = x, n = n, p = p)
+```
+
+```{r}
+# ...Compared to the normal approximation
+prop.test(x = x, n = n, p = p)
+
+# yet the outputs are pretty similar!
+```
+
