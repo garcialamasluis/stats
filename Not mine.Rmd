@@ -1,0 +1,158 @@
+---
+title: "ST 551 Homework 3"
+author: "Student's Name Goes Here"
+date: "Fall 2022"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+# Default options for knitted documents can be set here
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Instructions
+
+This assignment is due by 11:59 PM, October 26th on Canvas via Gradescope. **You should submit your assignment as a typed PDF which you can compile using the provide .Rmd (R Markdown) template.**  Include your code in your solutions and indicate where the solutions for individual problems are located when uploading into Gradescope. You should also use complete, grammatically correct sentences for your solutions.
+
+\newpage
+## Question 1 (18 Points)
+The function `binom.test()` in R performs the _exact_ binomial test discussed in class.  This function returns an object that includes the statistic (observed value of X), the parameter n, the p-value (two-sided by default), an estimate (the sample proportion, X/n), and a confidence interval (95% by default). See the help document `help(binom.test)` for guidance on how to use the function.
+
+### a. (3 points) Use `binom.test()` function to perform a two-sided test of the null hypothesis that $p = 0.4$ when you observe $X = 9$ successes in $n = 15$ trials. What is the reported p-value? 
+
+```{r}
+# Write the code needed to conduct the test here
+X=9
+n=15
+p=.4
+binom.test(X,n,p)
+```
+
+<!-- Use a sentence to report the p-value?  -->
+The p-values is .1222. 
+
+Confirm that this p-value agrees with the method discussed in class. That is, use `dbinom()` to find the probabilities of each outcome $X = 0, 1, 2, \ldots, 15$, and add up the probabilities of outcomes as likely as, or less likely, than $X = 9$ when $p = 0.4$.
+
+```{r}
+# Write the code to accomplish this task here
+probs = dbinom(0:15, n, p)
+p_val = sum(probs[probs<=dbinom(X,n,p)])
+p_val
+```
+
+<!-- Do your answers agree? -->
+The answer agree, pog. 
+
+
+### b. (3 points) Based on the p-value from part (a), use a sentence which states whether you would reject the null hypothesis $H_0: p = 0.4$ vs. $H_A: p \neq 0.4$ at level $\alpha = 0.05$?
+
+<!-- Write your answer below this line -->
+Since, the p-value is greater than $\alpha$, do not reject the null.
+
+
+### c. (3 points) What is the reported confidence interval for p?
+
+<!-- Write your answer below this line -->
+$$[.3228698,.8366357]$$
+
+
+### d. (3 points) Now use the function `binom.test()` to perform a two-sided test of the null hypothesis $H_0: p = 0.33$.  What is the reported p-value? Based on this p-value, would you reject the null hypothesis $H_0: p = 0.33$ vs. $H_A: p \neq 0.33$ at level $\alpha = 0.05$?  
+
+<!-- Write your answer below this line -->
+```{r}
+p=.33
+binom.test(X,n,p)
+```
+The reported p-value is .04951. Reject the null in this case, because the p-value is less than $\alpha$. 
+
+
+### e. (3 points) Compare your results from part (d) above to the confidence interval in parts (c) and (d). Do these results agree? Should we expect them to agree? Discuss (i.e. Write a few sentences explaining the results).
+
+<!-- Write your answer below this line -->
+The p-value from part (d) suggests to reject the null hypothesis, even when it lands within the 95% confidence interval. This can happen because the binomial distribution in discrete, but the confidence interval is built assuming the population distribution is normal. 
+
+
+### f. (3 points) How could you construct a confidence interval that would agree with the p-value from the exact binomial test? Describe the process, and implement it (using R) to find a confidence interval for p that agrees with the exact binomial two-sided p-value in this setting where you observed $X = 9$ successes in $n = 15$ trials.
+
+<!-- Write your answer below this line -->
+Guess different values for $p$, and then see if the p-value calculated reject the null or not. Use a bisection method to find the lower and upper bounds of the confidence interval. Since $p$ lies between 0 and 1, the precision of the bisection method will be $\left(\frac{1}{2}\right)^n$, for $n$ bisections made. 50 bisections will be done for each bound of the confidence interval to get more than reasonable precision. 
+```{r}
+alpha = .05
+num_bis = 50
+p_low = 0
+p_high = 1
+
+rej = function(p, X=9, n=15, alpha=.05){
+  probs = dbinom(0:15, n, p)
+  p_val = sum(probs[probs<=dbinom(X,n,p)])
+  return (p_val<alpha)
+}
+
+for (x in 1:num_bis){
+  p_guess = (p_low+p_high)/2
+  if (rej(p_guess)){
+    p_high = p_guess
+  } else{
+    p_low = p_guess
+  }
+}
+
+p_upper = p_guess
+p_low = 0
+p_high = 1
+
+for (x in 1:num_bis){
+  p_guess = (p_low+p_high)/2
+  if (rej(p_guess)){
+    p_low = p_guess
+  } else{
+    p_high = p_guess
+  }
+}
+
+p_lower = p_guess
+
+cat('[',p_lower,',',p_upper,']')
+```
+
+
+\newpage
+## Question 2 (10 points)
+The usual z-test (i.e. the _score test_) for a binomial proportion to test $H_0: p = p_0$ uses the test statistic
+\[ z(p_0) = \frac{\hat{p} - p_0}{\sqrt{p_0 (1 - p_0)/n}} \]
+where $\hat{p} = X/n$ is the sample proportion. For a two-sided level $\alpha$ test, the null hypothesis is rejected when
+\[ |z(p_0)| > z_{1-\alpha/2}. \]
+
+Compare the center and length of the resulting interval to the more commonly used _Wald interval_:
+\[ \hat{p} \pm z_{1-\alpha/2} \sqrt{\frac{\hat{p} (1 - \hat{p})}{n}}. \]
+That is, **derive** how these two values are mathematically different in terms of (1) where they are centered and (2) how wide the intervals are. Discuss the details and compare the two centers/lengths. 
+
+> Hint (1): We know that we would not reject the null hypothesis whenever $|z(p_0)| < z_{1-\alpha/2}$. Use this fact to first solve for the values of $p_0$ that would not lead to rejecting in a two-sided $\alpha$ level test. 
+
+> Hint (2): At some point, you'll want to consider applying our old friend and ally, the quadratic formula.
+
+<!-- Derive your confidence interval below -->
+
+For the z-test:
+$$|p_o-\hat{p}|<\sqrt{p_0(1-p_0)/n}z_{1-\alpha/2}.$$
+$$(p_o-\hat{p})^2<p_0(1-p_0)/nz^2_{1-\alpha/2}.$$
+$$p_o^2-2p_0\hat{p}+\hat{p}^2<\frac{p_0-p_0^2}{n}z^2_{1-\alpha/2}.$$
+$$p_o^2\left(1+\frac{z^2_{1-\alpha/2}}{n}\right)+p_0\left(-2\hat{p}-\frac{z^2_{1-\alpha/2}}{n}\right)+\hat{p}^2<0.$$
+$$p_0=\frac{2\hat{p}+\frac{z^2_{1-\alpha/2}}{n}\pm\sqrt{\left(2\hat{p}+\frac{z^2_{1-\alpha/2}}{n}\right)^2-4\left(1+\frac{z^2_{1-\alpha/2}}{n}\right)\hat{p}^2}}{2\left(1+\frac{z^2_{1-\alpha/2}}{n}\right)}.$$
+$$p_0=\frac{2\hat{p}+\frac{z^2_{1-\alpha/2}}{n}\pm\sqrt{4\hat{p}^2+4\frac{z^2_{1-\alpha/2}\hat{p}}{n}+\frac{z^4_{1-\alpha/2}}{n^2}-4\hat{p}^2-4\frac{z^2_{1-\alpha/2}\hat{p}^2}{n}}}{2\left(1+\frac{z^2_{1-\alpha/2}}{n}\right)}.$$
+$$p_0=\frac{2\hat{p}+\frac{z^2_{1-\alpha/2}}{n}\pm z_{1-\alpha/2}\sqrt{\frac{4\hat{p}}{n}+\frac{z^2_{1-\alpha/2}}{n^2}-\frac{4\hat{p}^2}{n}}}{2\left(1+\frac{z^2_{1-\alpha/2}}{n}\right)}.$$
+
+<!-- Comment on the differences in the center and lengths -->
+The center of the *Wald interval* is $\hat{p}$, while the center of the the interval from the z-test is $\frac{2\hat{p}n+z^2_{1-\alpha/2}}{2(n+z^2_{1-\alpha/2})}$. The length of the *Wald interval* is $z_{1-\alpha/2} \sqrt{\frac{\hat{p} (1 - \hat{p})}{n}}$, while the length of the interval from the z-test is $\frac{z_{1-\alpha/2}\sqrt{\frac{4\hat{p}}{n}+\frac{z^2_{1-\alpha/2}}{n^2}-\frac{4\hat{p}^2}{n}}}{2(1+\frac{z^2_{1-\alpha/2}}{n})}$
+
+\newpage
+## Question 3 (10 points)
+Prove that the one-sided upper z-test for a binomial proportion is a consistent test: If the true value of $p = p_A > p_0$, what is $P_{p_A}(z(p_0) > z_{1-\alpha})$ as $n \to \infty$?
+
+<!-- Write your answer below -->
+$$P_{p_A}(z(p_o)>z_{1-\alpha})=P(\frac{\hat{p}-p_0}{\sqrt{p_0(1-p_0)/n}}>z_{1-\alpha}).$$
+As $n\to\infty$, $\frac{\hat{p}-p_0}{\sqrt{p_0(1-p_0)/n}} \to \infty$, so $P_{p_A}(z(p_0)>z_{1-\alpha}) \to 1$ if $\hat{p}>p_0$. 
