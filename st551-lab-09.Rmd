@@ -1,0 +1,282 @@
+---
+title: 'ST 551: Statistical Methods I'
+date: "Lab 09 - Two-Sample Tests"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+# Two-sample Tests
+
+The two-sample testing framework is really one of the most commonly used set of methods in all of the sciences. Since we've spent to much time already developing the methods using one-sample tests, in this lab, we take a look at how the R code used to conduct these tests varies between two-sample tests and across their one-sample siblings.
+
+
+# Two-sample Independent t-test
+
+The basic usage for the two-sample t-test is pretty similar to the one-sample test. There's a few meaningful differences however we want to highlight.
+
+First, generate two samples of two different sizes from different distributions:
+
+```{r}
+n_x <- 20
+n_y <- 15
+
+samp_x <- rexp(n_x, 1)
+samp_y <- rnorm(n_y, 1, 3)
+```
+
+The most common way to run an independent two-sample t-test is to just supply the variables (as two vectors) to the `t.test()` function:
+
+```{r}
+t.test(samp_x, samp_y)
+```
+
+### Question 1: How does the results of the test change if you swap the order of `samp_x` and `samp_y`?
+
+```{r}
+# Conduct your test here
+
+```
+
+<!-- Describe the differences here -->
+
+
+By default, the `t.test()` function will test the null hypothesis that $H_0: \mu_x - \mu_y = 0$. You can change the null hypothesis however to ask, "Is the difference between $\mu_x$ and $\mu_y$ equal to some value (other than zero) by specifying the `mu` argument in the `t.test()` function:
+
+```{r}
+t.test(samp_x, samp_y, mu = 2)
+```
+
+
+You might notice, from the top line of the outputs, that by default, R is performing the Welch's two-sample t-test with degrees of freedom equal to the Satterthwaite approximation. You can alter this and have R perform an equal variance two-sample t-test using the `var.equal` argument.
+
+```{r}
+t.test(samp_x, samp_y, var.equal = TRUE)
+```
+
+### Question 2: What changes in the R output when you use Welch's t-test versus the two-sample t-test?
+
+<!-- Describe the differences here -->
+
+
+### Question 3: If you only had the sample values (and didn't know the distributions which generated them), would you prefer the Welch's two-sample t-test or the equal variance t-test? Justify your answer by using a plot of the samples.
+
+```{r}
+# Create a plot here
+
+```
+
+<!-- Describe which test you prefer here -->
+
+
+# Two-sample paired t-test
+
+You may remember from the lecture that, for paired samples, we want to use a paired sample t-test (which is just a one-sample t-test for the _differences_ between two samples). So to start, let's generate two new samples of data (of equal size) and see how we can use R to conduct the paired t-test:
+
+```{r}
+n <- 20
+newsamp_x <- rchisq(n, 3)
+newsamp_y <- rnorm(n, newsamp_x, 1)
+```
+
+You might notice that `newsamp_y` has a dependence on `newsamp_x` since the mean value of `newsamp_y` depends on the value of the random values of `newsamp_x`. Hence, because there's a dependence, using an independent procedure would _not_ be appropriate.
+
+To conduct a paired t-test, we can do one of two things. We can input the difference of the samples and use the same R code we used for the one-sample t-test:
+
+```{r}
+t.test(newsamp_y - newsamp_x)
+```
+
+Or, we can input both vectors of values and use the `paired` argument.
+
+```{r}
+t.test(newsamp_x, newsamp_y, paired = TRUE)
+```
+
+### Question 5: Compare the two paired t-tests we just performed. If we want to examine, `newsamp_y - newsamp_x` (as we did in the first test), how should we order the variables in the second test to test this specific difference?
+
+<!-- Write your answer here -->
+
+
+# Pearson's Chi-squared test
+
+For a 2x2 contingency table, we can perform Pearson Chi-squared test of homogeneity (or similarly, for independence) by using the `chisq.test()` function. To do so, let's first build a 2x2 table "by hand":
+
+```{r}
+table_a <- cbind(c(15, 10),
+                 c(5, 20))
+table_a
+```
+
+Once we have our 2x2 table, we can conduct our test:
+
+```{r}
+# I include correct = FALSE to make the test similar to that
+# featured in the lecture
+chisq.test(table_a, correct = FALSE)
+```
+
+You might remember from the lecture as well that Pearson's Chi-squared test is equivalent to the z-test for binary proportions (Using the fact that $\chi = z^2$). So we can also then conduct this test using the `prop.test()` function.
+
+```{r}
+prop.test(table_a, correct = FALSE)
+```
+
+One last important thing to note for this test (especially if you're using the `prop.test()` function to conduct it). How you set up your 2x2 table absolutely matters as how you define your table will change the confidence intervals. To see what I mean, let's transpose our table so that we swap the rows and columns
+
+```{r}
+# Our original table
+table_a
+
+# Our table with swapped rows/columns
+# t() is the matrix transpose function
+t(table_a)
+```
+
+If we conduct the `prop.test()` with the transposed table, notice that we get the same p-value but that the confidence interval is different:
+
+```{r}
+prop.test(t(table_a), correct = FALSE)
+```
+
+This happens because we're effectively swapping which set of values are the "grouping" variable (i.e. the rows). When we're constructing our 2x2 contingency tables, we usually want the "grouping" variable to be the rows and the outcome/response variable to be the columns (And remember, sampling schemes/settings matter for these problems). 
+
+For example, suppose we have $m = 25$ people from Eastern Oregon and $n = 25$ people from Western Oregon and we classify these people as being vegetarian and non-vegetarian:
+
+```{r}
+table_b <- table_a
+table_b <- cbind(table_b, rowSums(table_b))
+table_b <- rbind(table_b, colSums(table_b))
+colnames(table_b) <- c("Western Oregon", "Eastern Oregon", "Total")
+row.names(table_b) <- c("Vegetarian", "Non-vegetarian", "Total")
+table_b
+```
+
+### Question 6: If we consider whether someone as being in Western Oregon or Eastern Oregon as the grouping variable, how should we arrange the table so that the `prop.test()` function gives us the correct estimates to answer questions regarding the proportion of people who are vegetarian vs. non-vegetarian? How should we arrange the table had we wanted to group people based on whether or not they were vegetarian and then examine differences in the proportion of people who live in Eastern vs. Western Oregon?
+
+<!-- Write your answer here -->
+
+
+# Fisher's exact test
+
+Finally, we have Fisher's exact test. And here, we'll continue on with the data we created in `table_a`
+
+```{r}
+table_a
+```
+
+To perform Fisher's exact test, we can run the following:
+
+```{r}
+fisher.test(table_a)
+```
+
+We could also perform this test "by hand" using one of the two following approaches: (1) either using the `dhyper()` function, which gives the probability mass function for the hypergeometric distribution, or using the `choose()` function, which computes "n choose k", the binomial coefficient given by $\frac{n!}{k! (n-k)!}$ .
+
+(Note: the hypergeometric distribution is the distribution of the number of white balls in a draw of $k$ balls _without replacement_ from an urn with $m$ white balls and $n$ black balls.   This is the distribution of an observed contingency table (count in upper left corner, without loss of generality) if the margins are fixed: row margin $k$ and $N – k$, column margin $m$ and $n$, where $m + n = N$.)
+
+The following two lines use `dhyper()` to compute the probability of the exact observed table.  Note that it does not matter whether you consider $m$ and $n$ the row totals or column totals; what does matter is that $m$ and $k$ correspond to the row/column that the given cell (in this case the first row, first column cell) belongs to, and $n$ is $N – m$. 
+
+```{r}
+# Note that the resulting probabilities are the same here
+dhyper(table_a[1, 1], m = 25, n = 25, k = 20)
+dhyper(table_a[1, 1], m = 20, n = 30, k = 25)
+
+# Assign the "observed" probability of the table a name
+obs_table_prob <- dhyper(table_a[1, 1], m = 25, n = 25, k = 20)
+```
+
+We can compute the probabilities of all possible tables by first noting that the count in cell $[1, 1]$ must be between 0 and 20. Then computing the hypergeometric mass function for each value in this range, we get the probability of each table of the form,
+
+|          |                 |
+|:--------:|:---------------:|
+|   $k$    |    $20 - k$     |
+| $25 - k$ | $25 - (20 - k)$ |
+
+for $k = 0, 1, \ldots, 20$.
+
+```{r}
+all_table_probs <- dhyper(0:20, m = 25, n = 25, k = 20)
+all_table_probs
+```
+
+Once we've computed _all_ of the table probabilities which are valid, we want to (1) extract just the elements of the vector of resulting probabilities which are less than or equal to the observed table probability and (2) which values of $k$ produce tables with probabilities less than or equal to the observed table probability:
+
+```{r}
+# Elements of the vector with probabilities less than or 
+# equal to the observed probability
+which(all_table_probs <= obs_table_prob)
+
+# Values of $k$ which produce probabilities less than or 
+# equal to the observed table probability
+(0:20)[all_table_probs <= obs_table_prob]
+```
+
+Once, we have this information, we can compute the sum of all of the probabilities for the values of $k$ which we want to include in our two-sided p-value:
+
+```{r}
+sum(all_table_probs[all_table_probs <= obs_table_prob])
+```
+
+Notice that this p-value exactly matches the p-value of our `fisher.test()` function!
+
+
+The other way we can compute this p-value is by following along with the method we used in the lecture using the `choose()` function. This function computes the number of ways we can choose $k$ objects from a total of $n$ objects:
+
+```{r}
+# Using the choose function
+choose(10, 2)
+
+# Or computing this value by hand:
+factorial(10) / (factorial(2) * (factorial(10 - 2)))
+```
+
+So if we then wanted to compute the probability of our observed table, conditioning on the margin totals, then we would compute:
+
+```{r}
+choose(25, 15) * choose(25, 5) / choose(50, 20)
+```
+
+Which exactly matches the previously computed observed probability from the `dhyper()` function:
+
+```{r}
+obs_table_prob
+```
+
+
+One last thing to note. The output of the `fisher.test()` function returns a confidence interval and an estimate. So suppose we had the following data:
+
+```{r}
+table_c <- rbind(c(16, 4), 
+                 c(7, 23))
+table_c
+```
+
+And then we put this data into the `fisher.test()` function:
+
+```{r}
+fisher.test(table_c)
+```
+
+### Question 7 or 8: What do you notice about the p-value, alternative hypothesis, and the confidence interval from the output above? Do they agree?
+
+<!-- Write your answer here -->
+
+
+To see why this happens, you might consider exploring the help documentation:
+
+```{r, eval = FALSE}
+help(fisher.test)
+```
+
+or even examining the function code itself
+
+```{r, eval = FALSE}
+fisher.test
+```
+
